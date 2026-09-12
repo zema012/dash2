@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vlimp Analytics - Dashboard de Análise de Clusters & Padrões (Macro e Micro)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">V</div>
+        <div class="brand-text">
+          <h1>VLIMP ANALYTICS</h1>
+          <p>Inteligência Comercial</p>
+        </div>
+      </div>
+
+      <ul class="nav-links">
+        <li class="nav-item active" data-tab="tab-macro">
+          <span class="icon">📊</span>
+          <span>Visão Executiva (Macro)</span>
+        </li>
+        <li class="nav-item" data-tab="tab-clusters">
+          <span class="icon">🎯</span>
+          <span>Análise de Clusters (2D)</span>
+        </li>
+        <li class="nav-item" data-tab="tab-patterns">
+          <span class="icon">🔍</span>
+          <span>Padrões & Correlações</span>
+        </li>
+        <li class="nav-item" data-tab="tab-clients">
+          <span class="icon">🏢</span>
+          <span>Raio-X de Clientes (Micro)</span>
+        </li>
+        <li class="nav-item" data-tab="tab-sellers">
+          <span class="icon">💼</span>
+          <span>Força de Vendas (Micro)</span>
+        </li>
+        <li class="nav-item" data-tab="tab-products">
+          <span class="icon">📦</span>
+          <span>Mix de Produtos & ABC</span>
+        </li>
+        <li class="nav-item" data-tab="tab-simulator">
+          <span class="icon">💡</span>
+          <span>Simulador & Plano de Ação</span>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div>Base: <strong>Nordeste (2024-2025)</strong></div>
+        <div class="case-badge">Case Vlimp Rocket Lab</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="page-title">
+          <h2 id="headerTitle">Visão Executiva & Estratégica Macro</h2>
+          <p id="headerSubtitle">Diagnóstico comercial integrado, clusterização de PDVs e oportunidades de receita</p>
+        </div>
+        <div class="header-controls">
+          <span id="activeFilterBadge" class="active-filter-indicator">Filtros ativos</span>
+          <button id="btnExportSummary" class="btn-reset-filters" style="display: flex; align-items: center; gap: 0.35rem;">
+            <span>📥</span> Exportar Resumo
+          </button>
+        </div>
+      </header>
+
+      <!-- Global Filter Bar -->
+      <div class="filter-bar-container">
+        <div class="filter-group">
+          <label class="filter-label" for="filterCanal">Canal:</label>
+          <select id="filterCanal" class="filter-select">
+            <option value="ALL">Todos os Canais</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterUF">UF:</label>
+          <select id="filterUF" class="filter-select">
+            <option value="ALL">Todos os Estados</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterRegiao">Região:</label>
+          <select id="filterRegiao" class="filter-select">
+            <option value="ALL">Todas as Regiões</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterPorte">Porte:</label>
+          <select id="filterPorte" class="filter-select">
+            <option value="ALL">Todos os Portes</option>
+            <option value="P">Porte P</option>
+            <option value="M">Porte M</option>
+            <option value="G">Porte G</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterCluster">Cluster:</label>
+          <select id="filterCluster" class="filter-select">
+            <option value="ALL">Todos os Clusters</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filterVendedor">Vendedor:</label>
+          <select id="filterVendedor" class="filter-select">
+            <option value="ALL">Todos os Vendedores</option>
+          </select>
+        </div>
+
+        <button id="btnResetFilters" class="btn-reset-filters">Limpar Filtros</button>
+      </div>
+
+      <!-- Content Views -->
+      <div class="content-area">
+        
+        <!-- ================= TAB 1: MACRO EXEC ================= -->
+        <section id="tab-macro" class="tab-pane active">
+          <!-- KPI Cards Row -->
+          <div class="kpi-grid">
+            <div class="kpi-card" style="--card-accent: #6366f1;">
+              <div class="kpi-header">
+                <span class="kpi-label">Receita Líquida</span>
+                <div class="kpi-icon">💰</div>
+              </div>
+              <div class="kpi-value" id="kpiReceita">R$ 48,16M</div>
+              <div class="kpi-sub">
+                <span>Bruta: <strong id="kpiReceitaBruta">R$ 49,70M</strong></span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #10b981;">
+              <div class="kpi-header">
+                <span class="kpi-label">Margem Contribuição</span>
+                <div class="kpi-icon">📈</div>
+              </div>
+              <div class="kpi-value" id="kpiMargemPct">24.96%</div>
+              <div class="kpi-sub">
+                <span>Total: <strong id="kpiMargemValor">R$ 12,02M</strong></span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #3b82f6;">
+              <div class="kpi-header">
+                <span class="kpi-label">PDVs Ativos</span>
+                <div class="kpi-icon">🏢</div>
+              </div>
+              <div class="kpi-value" id="kpiPDVsAtivos">3.662</div>
+              <div class="kpi-sub">
+                <span>Taxa de Ativação: <strong class="highlight" id="kpiTaxaAtivacao">91.5%</strong></span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #8b5cf6;">
+              <div class="kpi-header">
+                <span class="kpi-label">Ticket Médio</span>
+                <div class="kpi-icon">🏷️</div>
+              </div>
+              <div class="kpi-value" id="kpiTicketMedio">R$ 602,10</div>
+              <div class="kpi-sub">
+                <span>Total: <strong id="kpiTotalPedidos">79.990</strong> pedidos</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #f59e0b;">
+              <div class="kpi-header">
+                <span class="kpi-label">Desconto Médio</span>
+                <div class="kpi-icon">✂️</div>
+              </div>
+              <div class="kpi-value" id="kpiDescontoPct">3.10%</div>
+              <div class="kpi-sub">
+                <span>Total: <strong id="kpiDescontoValor">R$ 1,54M</strong></span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #06b6d4;">
+              <div class="kpi-header">
+                <span class="kpi-label">Efetividade Visitas</span>
+                <div class="kpi-icon">🎯</div>
+              </div>
+              <div class="kpi-value" id="kpiConvVisitas">69.7%</div>
+              <div class="kpi-sub">
+                <span>Total: <strong>99.000</strong> visitas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clusters Summary Cards -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">🧩 Segmentação Estratégica de Clusters de PDVs</h3>
+                <p class="card-subtitle">Clique em qualquer cluster para filtrar o dashboard instantaneamente</p>
+              </div>
+              <span class="badge badge-purple">Algoritmo K-Means + RFM Multi-Variável</span>
+            </div>
+            <div class="clusters-summary-grid" id="clustersSummaryGrid">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <!-- Charts Row 1 -->
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📅 Evolução Mensal: Receita & Margem (2024-2025)</h3>
+                <span class="badge badge-emerald">24 Meses</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartEvolucaoMensal"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">🗺️ Potencial de Mercado vs Share Vlimp por Estado</h3>
+                <span class="badge badge-blue">Gap Geográfico</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartShareMercado"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 2: CLUSTER ANALYSIS 2D ================= -->
+        <section id="tab-clusters" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">🎯 Projeção Dimensional 2D dos 4.000 Clientes (PCA)</h3>
+                <p class="card-subtitle">Passe o mouse para inspecionar métricas do PDV. Clique para abrir o Raio-X 360°.</p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" id="canvasSearchPDV" class="search-input" placeholder="Buscar PDV (ex: Cliente 0001)...">
+              </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="cluster-canvas-container" id="canvasContainer">
+              <canvas id="clusterCanvas"></canvas>
+              <div class="canvas-controls">
+                <button class="canvas-btn" id="btnZoomIn" title="Zoom In">+</button>
+                <button class="canvas-btn" id="btnZoomOut" title="Zoom Out">-</button>
+                <button class="canvas-btn" id="btnZoomReset" title="Reset Zoom">⟲</button>
+              </div>
+              <div class="canvas-legend" id="canvasLegend">
+                <!-- Legend items rendered in JS -->
+              </div>
+              <div class="canvas-tooltip" id="canvasTooltip"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">🕸️ Radar Multidimensional: Perfil dos Clusters</h3>
+                <span class="badge badge-purple">Comparativo de Atributos</span>
+              </div>
+              <div class="chart-container-tall">
+                <canvas id="chartRadarClusters"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📊 Distribuição de Clusters por Canal de Venda</h3>
+                <span class="badge badge-blue">Penetração em Canais</span>
+              </div>
+              <div class="chart-container-tall">
+                <canvas id="chartClusterPorCanal"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 3: PATTERNS & CORRELATIONS ================= -->
+        <section id="tab-patterns" class="tab-pane">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">📉 Padrão 1: Destruição de Margem por Faixa de Desconto</h3>
+                  <p class="card-subtitle">Impacto da política promocional na rentabilidade líquida da Vlimp</p>
+                </div>
+                <span class="badge badge-amber">Sensibilidade a Preço</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartDescontoMargem"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">⏱️ Padrão 2: Efetividade por Duração e Tipo de Visita</h3>
+                  <p class="card-subtitle">Taxa de conversão em pedido: Planejadas vs Extra-rota</p>
+                </div>
+                <span class="badge badge-emerald">Produtividade de Campo</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartVisitasEficiencia"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cross-Sell Heatmap Matrix -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">🛒 Padrão 3: Matriz de Co-ocorrência & Cross-Sell de Categorias</h3>
+                <p class="card-subtitle">% de pedidos contendo a categoria da LINHA que também incluem a categoria da COLUNA</p>
+              </div>
+              <span class="badge badge-purple">Oportunidades de Mix</span>
+            </div>
+            <div class="heatmap-table-container" id="crossSellHeatmapContainer">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 4: CLIENTS 360 MICRO ================= -->
+        <section id="tab-clients" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">🏢 Base de Clientes (PDV 360°) - Lista Detalhada</h3>
+                <p class="card-subtitle">Clique em qualquer cliente para abrir o Raio-X individual completo</p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" id="tableSearchInput" class="search-input" placeholder="Buscar por Nome, ID ou Cidade...">
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table" id="clientsTable">
+                <thead>
+                  <tr>
+                    <th data-sort="id">ID</th>
+                    <th data-sort="nome">Cliente</th>
+                    <th data-sort="cidade">Cidade / UF</th>
+                    <th data-sort="canal">Canal</th>
+                    <th data-sort="porte">Porte</th>
+                    <th data-sort="cluster_nome">Cluster</th>
+                    <th data-sort="rec_liq">Receita Líq.</th>
+                    <th data-sort="margem_pct">Margem %</th>
+                    <th data-sort="pedidos">Pedidos</th>
+                    <th data-sort="recencia_dias">Recência</th>
+                    <th data-sort="skus">SKUs Mix</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <span id="paginationInfo">Mostrando 1-20 de 4.000 clientes</span>
+              <div class="pagination-buttons">
+                <button id="btnPrevPage" class="page-btn">← Anterior</button>
+                <button id="btnNextPage" class="page-btn">Próximo →</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 5: SELLERS MICRO ================= -->
+        <section id="tab-sellers" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">💼 Força de Vendas: Performance dos 60 Vendedores</h3>
+                <p class="card-subtitle">Atingimento de metas de receita e margem, capacidade de visitas e conversão</p>
+              </div>
+              <span class="badge badge-emerald">60 Vendedores</span>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 1.5rem;">
+              <div class="chart-container">
+                <canvas id="chartVendedoresScatter"></canvas>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartVendedoresPerfis"></canvas>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Vendedor</th>
+                    <th>Região Comercial</th>
+                    <th>Perfil / Diagnóstico</th>
+                    <th>Receita Realizada</th>
+                    <th>Ating. Meta Rec.</th>
+                    <th>Margem Realiz.</th>
+                    <th>Meta Margem</th>
+                    <th>Visitas Realiz.</th>
+                    <th>Conversão</th>
+                    <th>Desconto Méd.</th>
+                  </tr>
+                </thead>
+                <tbody id="sellersTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 6: PRODUCTS & SKUS ================= -->
+        <section id="tab-products" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">📦 Matriz de Produtos & Curva ABC (144 SKUs)</h3>
+                <p class="card-subtitle">Análise de contribuição, rentabilidade por categoria e sensibilidade promocional</p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" id="searchProductInput" class="search-input" placeholder="Buscar SKU ou Categoria...">
+              </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 1.5rem;">
+              <div class="chart-container">
+                <canvas id="chartCurvaABC"></canvas>
+              </div>
+              <div class="chart-container">
+                <canvas id="chartCategoriasShare"></canvas>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>SKU ID</th>
+                    <th>Nome do Produto</th>
+                    <th>Categoria</th>
+                    <th>Marca</th>
+                    <th>Curva ABC</th>
+                    <th>Preço Lista</th>
+                    <th>Receita Total</th>
+                    <th>Qtd Vendida</th>
+                    <th>Margem %</th>
+                    <th>Desconto %</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 7: SIMULATOR & ACTION PLAN ================= -->
+        <section id="tab-simulator" class="tab-pane">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">🎛️ Simulador de Cenários & Alavancas de Lucro (What-If)</h3>
+                  <p class="card-subtitle">Ajuste as alavancas e veja o impacto instantâneo na Receita e Margem da Vlimp</p>
+                </div>
+              </div>
+
+              <div class="sim-slider-group">
+                <div class="sim-slider-header">
+                  <span>1. Redução de Descontos Concedidos</span>
+                  <strong id="simValDesconto">-0.5% p.p.</strong>
+                </div>
+                <input type="range" id="simSliderDesconto" class="sim-slider" min="0" max="2.0" step="0.1" value="0.5">
+                <span style="font-size: 0.72rem; color: var(--text-dim);">Disciplina promocional nos clusters sensíveis a preço</span>
+              </div>
+
+              <div class="sim-slider-group">
+                <div class="sim-slider-header">
+                  <span>2. Reativação de Clientes em Risco / Churn</span>
+                  <strong id="simValChurn">15% reativados</strong>
+                </div>
+                <input type="range" id="simSliderChurn" class="sim-slider" min="0" max="40" step="5" value="15">
+                <span style="font-size: 0.72rem; color: var(--text-dim);">Recuperação dos 338 PDVs inativos com campanhas de retorno</span>
+              </div>
+
+              <div class="sim-slider-group">
+                <div class="sim-slider-header">
+                  <span>3. Expansão de Mix em "Alto Potencial Inexplorado"</span>
+                  <strong id="simValCrossSell">+12% faturamento</strong>
+                </div>
+                <input type="range" id="simSliderCrossSell" class="sim-slider" min="0" max="30" step="2" value="12">
+                <span style="font-size: 0.72rem; color: var(--text-dim);">Introdução de categorias faltantes (ex: Lava-Roupas e Desinfetante)</span>
+              </div>
+
+              <div class="sim-slider-group">
+                <div class="sim-slider-header">
+                  <span>4. Otimização de Rotas (Extra-rota para Planejadas)</span>
+                  <strong id="simValRotas">+5% conversão</strong>
+                </div>
+                <input type="range" id="simSliderRotas" class="sim-slider" min="0" max="15" step="1" value="5">
+                <span style="font-size: 0.72rem; color: var(--text-dim);">Foco em roteirização estruturada e duração ideal de 30-45min</span>
+              </div>
+            </div>
+
+            <div class="card sim-results-card">
+              <h3 class="card-title" style="color: var(--c-emerald);">🚀 Impacto Projetado nos Resultados (24 Meses)</h3>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="kpi-card" style="background: rgba(0,0,0,0.3); border: none;">
+                  <span class="kpi-label">Receita Incremental</span>
+                  <div class="kpi-value" style="color: var(--c-emerald);" id="simResReceita">+R$ 3,45M</div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);" id="simResReceitaPct">+7.16% s/ base</span>
+                </div>
+
+                <div class="kpi-card" style="background: rgba(0,0,0,0.3); border: none;">
+                  <span class="kpi-label">Lucro Bruto Adicional</span>
+                  <div class="kpi-value" style="color: #60a5fa;" id="simResMargem">+R$ 1,12M</div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);" id="simResMargemPct">Margem: 25.8% (+0.84 p.p.)</span>
+                </div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.25); padding: 1rem; border-radius: var(--radius-md); font-size: 0.82rem; line-height: 1.6;">
+                <strong style="color: #fff;">💡 Síntese das Alavancas:</strong>
+                <ul style="margin-left: 1.25rem; margin-top: 0.4rem; color: var(--text-muted);">
+                  <li>Alavanca mais rápida: <strong>Controle de descontos</strong> gera margem líquida direta sem custo incremental.</li>
+                  <li>Maior potencial em volume: <strong>Cross-sell no Cluster Alto Potencial</strong> (1.149 PDVs de médio/grande porte).</li>
+                  <li>Produtividade: <strong>Reduzir visitas extra-rota</strong> que possuem menor taxa de fechamento.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Structured Action Plan -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">📋 Plano de Ação Comercial Recomendado para a Vlimp</h3>
+              <span class="badge badge-emerald">Pronto para Execução</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-md); padding: 1rem;">
+                <h4 style="color: var(--c-emerald); font-size: 0.9rem; margin-bottom: 0.4rem;">1. Blindagem dos Campeões (Key Accounts)</h4>
+                <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">Garantir visitas quinzenais planejadas com tempo mínimo de 45 minutos. Acordos de fornecimento contínuo e abastecimento prioritário de SKUs Curva A.</p>
+              </div>
+
+              <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: var(--radius-md); padding: 1rem;">
+                <h4 style="color: var(--c-blue); font-size: 0.9rem; margin-bottom: 0.4rem;">2. Ataque ao Alto Potencial Inexplorado</h4>
+                <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">Incentivo comercial para vendedores na positivação de 3+ categorias por PDV. Combos promocionais amarrando Água Sanitária com Lava-Roupas.</p>
+              </div>
+
+              <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-md); padding: 1rem;">
+                <h4 style="color: var(--c-amber); font-size: 0.9rem; margin-bottom: 0.4rem;">3. Governança de Preços & Descontos</h4>
+                <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">Limitar alçada de desconto acima de 5% aos gerentes regionais. Atrelar bonificação da equipe de vendas à margem de contribuição realizada.</p>
+              </div>
+
+              <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-md); padding: 1rem;">
+                <h4 style="color: var(--c-red); font-size: 0.9rem; margin-bottom: 0.4rem;">4. Taskforce de Reativação de Churn</h4>
+                <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">Campanha de contato por telefone/visita para os 338 clientes inativos com condição especial de primeiro pedido e revisão de motivos de perda.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Client 360° Modal (Micro View) -->
+  <div class="modal-overlay" id="clientModalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <h3 id="modalClientName" style="font-size: 1.25rem; font-weight: 700;">Cliente 0001</h3>
+            <span id="modalClientClusterTag" class="badge badge-emerald">Key Account</span>
+          </div>
+          <p id="modalClientSub" style="font-size: 0.8rem; color: var(--text-muted);">C00001 • Varejo Médio • Feira de Santana, BA</p>
+        </div>
+        <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Cluster Rationale Box -->
+        <div id="modalClusterBox" style="background: rgba(255, 255, 255, 0.04); border-left: 4px solid var(--primary); padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+          <strong id="modalClusterRationaleTitle">Diagnóstico do Cluster:</strong>
+          <span id="modalClusterRationaleDesc" style="color: var(--text-muted); display: block; margin-top: 0.2rem;">Descrição do cluster...</span>
+        </div>
+
+        <!-- Micro Metrics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+          <div style="background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: var(--radius-md);">
+            <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Receita Líquida</span>
+            <div id="modalRecLiq" style="font-size: 1.15rem; font-weight: 700; color: #fff;">R$ 0,00</div>
+            <span id="modalRecYoY" style="font-size: 0.72rem; color: var(--c-emerald);">+0% YoY</span>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: var(--radius-md);">
+            <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Margem Contrib.</span>
+            <div id="modalMargemPct" style="font-size: 1.15rem; font-weight: 700; color: var(--c-emerald);">0.0%</div>
+            <span id="modalMargemVal" style="font-size: 0.72rem; color: var(--text-muted);">R$ 0,00</span>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: var(--radius-md);">
+            <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Ticket Médio</span>
+            <div id="modalTicket" style="font-size: 1.15rem; font-weight: 700; color: #fff;">R$ 0,00</div>
+            <span id="modalPedidos" style="font-size: 0.72rem; color: var(--text-muted);">0 pedidos</span>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: var(--radius-md);">
+            <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Recência</span>
+            <div id="modalRecencia" style="font-size: 1.15rem; font-weight: 700; color: var(--c-amber);">0 dias</div>
+            <span id="modalUltimaCompra" style="font-size: 0.72rem; color: var(--text-muted);">Última: 00/00/0000</span>
+          </div>
+        </div>
+
+        <!-- Historical Sparkline & Mix Breakdown -->
+        <div class="grid-2">
+          <div>
+            <h4 style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem;">📈 Histórico Mensal Recente (Últimos 6 Meses)</h4>
+            <div style="height: 160px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); padding: 0.5rem;">
+              <canvas id="modalChartHistorico"></canvas>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem;">🛒 Penetração de Mix de Categorias</h4>
+            <div id="modalMixContainer" style="background: rgba(0,0,0,0.2); border-radius: var(--radius-md); padding: 0.75rem; height: 160px; overflow-y: auto;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Top SKUs and Sales Rep info -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem;">
+          <div style="background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: var(--radius-md);">
+            <h4 style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">🏆 Top SKUs Comprados</h4>
+            <div id="modalTopSKUs" style="font-size: 0.8rem; color: var(--text-muted);">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: var(--radius-md);">
+            <h4 style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem;">👤 Vendedor & Atendimento</h4>
+            <div id="modalSellerInfo" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Script -->
+  <script src="data.js"></script>
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
